@@ -1,7 +1,6 @@
 from transformers import pipeline
 
-# Force CPU usage for deployment compatibility (device=-1)
-summarizer = pipeline("summarization", model="facebook/bart-large-cnn", device=-1)
+summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
 
 def generate_summary(text, length="medium"):
     text = text.strip()
