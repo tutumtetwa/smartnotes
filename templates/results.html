@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head><title>Results</title></head>
+<body>
+  <h2>Original Note</h2>
+  <p>{{ original }}</p>
+
+  <h2>Entities</h2>
+  <ul>
+    {% for text, label in entities %}
+      <li><strong>{{ text }}</strong>: {{ label }}</li>
+    {% endfor %}
+  </ul>
+
+  <h2>Keywords</h2>
+  <ul>
+    {% for word in keywords %}
+      <li>{{ word }}</li>
+    {% endfor %}
+  </ul>
+
+  <a href="/">← Back</a>
+</body>
+</html>

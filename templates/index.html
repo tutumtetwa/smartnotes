@@ -1,19 +1,222 @@
 <!DOCTYPE html>
-<html>
+<html lang="en" class="scroll-smooth">
 <head>
-    <title>SmartNotes</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NoteGrid ✨</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            inter: ['Inter', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    .fade-in {
+      animation: fadeIn 0.5s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
 </head>
-<body>
-    <h1>SmartNotes 🧠</h1>
-    <form method="POST">
-        <textarea name="note" rows="10" cols="60"></textarea><br>
-        <button type="submit">Analyze</button>
+<body class="relative bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100 font-inter min-h-screen transition-all">
+
+<!-- 🌄 Background graphic -->
+<div class="absolute inset-0 z-0 bg-[url('/static/bg-pattern.svg')] bg-cover bg-center opacity-10 dark:opacity-20 pointer-events-none"></div>
+
+<!-- Main container -->
+<div class="relative z-10 max-w-3xl mx-auto px-4 py-8 sm:px-6 fade-in">
+  <header class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold text-blue-600 dark:text-blue-400">🧠 NoteGrid</h1>
+    <button onclick="toggleTheme()" class="px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded-md hover:opacity-80">
+      🌞 / 🌙
+    </button>
+  </header>
+
+  <!-- 📝 Input Form -->
+  <form method="POST" enctype="multipart/form-data" class="space-y-4 bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md" autocomplete="off" onsubmit="showSpinner()">
+    <label for="text" class="block font-medium">Enter Text:</label>
+    <textarea name="text" rows="5" placeholder="Paste or type your notes here..." class="w-full p-3 border border-gray-300 dark:border-gray-700 rounded dark:bg-gray-900 dark:text-white resize-none">{{ text or '' }}</textarea>
+
+    <div>
+      <label for="file" class="block font-medium">Or Upload a File:</label>
+      <input type="file" name="file" accept=".txt,.md,.pdf,.docx" class="w-full file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"/>
+    </div>
+
+    <div>
+      <label for="length" class="block font-medium">Summary Length:</label>
+      <select name="length" id="length" class="mt-1 w-full rounded border border-gray-300 dark:border-gray-700 p-2 dark:bg-gray-900 dark:text-white">
+        <option value="short">Short</option>
+        <option value="medium" selected>Medium</option>
+        <option value="long">Long</option>
+      </select>
+    </div>
+
+    <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+      🔍 Analyze
+    </button>
+    
+    <button type="button" onclick="resetPage(true)" class="w-full bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+      🔁 Reset
+    </button>
+  </form>
+
+  <!-- Spinner -->
+  <div id="spinner" class="hidden mt-4 text-center">
+    <div class="animate-spin h-8 w-8 border-4 border-blue-400 border-t-transparent rounded-full mx-auto"></div>
+    <p class="text-sm mt-2 text-blue-500">Analyzing...</p>
+  </div>
+
+  {% if error %}
+    <p class="text-red-500 mt-4">❌ {{ error }}</p>
+  {% endif %}
+
+  {% if summary %}
+  <div class="mt-8 space-y-4">
+    <form id="summaryForm" class="flex flex-wrap gap-4 items-center">
+      <textarea name="summary" id="summaryInput" hidden>{{ summary }}</textarea>
+      <button type="button" onclick="generateAudio()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 w-full sm:w-auto">🔊 Generate Audio</button>
+      <button type="button" onclick="copySummary()" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 w-full sm:w-auto">📋 Copy Summary</button>
     </form>
-    <h2>Named Entities:</h2>
-    <ul>
-    {% for text, label in analysis %}
-        <li>{{ text }} — <b>{{ label }}</b></li>
-    {% endfor %}
-    </ul>
+
+    <div id="audioSection" class="hidden p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+      <h3 class="font-semibold mb-1">🎧 Audio Summary</h3>
+      <audio id="audioPlayer" controls class="w-full mb-2"></audio>
+      <a id="downloadLink" class="text-blue-600 dark:text-blue-400 underline block" download>⬇️ Download Audio</a>
+    </div>
+  </div>
+
+  <section class="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 rounded">
+    <h2 class="text-xl font-semibold mb-1">📝 Summary</h2>
+    <p>{{ summary }}</p>
+  </section>
+  {% endif %}
+
+  {% if sentiment %}
+  <section class="mt-4 p-4 bg-pink-50 dark:bg-pink-900/20 border-l-4 border-pink-500 rounded">
+    <h2 class="text-xl font-semibold mb-1">❤️ Sentiment</h2>
+    <p>{{ sentiment }}</p>
+  </section>
+  {% endif %}
+
+  {% if text %}
+  <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <form method="POST" action="/export/pdf" onsubmit="showToast('📤 PDF downloaded!')">
+      <input type="hidden" name="text" value="{{ text }}">
+      <button type="submit" class="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-md font-semibold">📤 Export as PDF</button>
+    </form>
+    <form method="POST" action="/export/txt" onsubmit="showToast('📄 Text file downloaded!')">
+      <input type="hidden" name="text" value="{{ text }}">
+      <button type="submit" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white py-2 rounded-md font-semibold">📄 Export as Text</button>
+    </form>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Toast -->
+<div id="toast" class="fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow hidden"></div>
+
+<script>
+  function toggleTheme() {
+    const html = document.documentElement;
+    html.classList.toggle('dark');
+    localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    if (localStorage.getItem('theme') === 'dark') {
+      document.documentElement.classList.add('dark');
+    }
+  });
+
+  function showSpinner() {
+    document.getElementById('spinner').classList.remove('hidden');
+  }
+
+  function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.remove('hidden');
+    setTimeout(() => toast.classList.add('hidden'), 3000);
+  }
+
+  function resetForm() {
+  document.querySelector('textarea[name="text"]').value = '';
+  document.querySelector('input[name="file"]').value = '';
+  document.querySelector('select[name="length"]').value = 'medium';
+  document.getElementById('spinner')?.classList.add('hidden');
+  document.getElementById('audioSection')?.classList.add('hidden');
+  document.getElementById('toast')?.classList.add('hidden');
+
+  // Optionally hide summary/sentiment (if dynamically loaded via JS or separate container IDs)
+  document.querySelectorAll('section, .result, #summaryForm').forEach(el => {
+    el?.classList?.add('hidden');
+  });
+
+  // Clear audio player if loaded
+  const audioPlayer = document.getElementById('audioPlayer');
+  if (audioPlayer) {
+    audioPlayer.pause();
+    audioPlayer.src = '';
+  }
+}
+
+
+  function copySummary() {
+    const text = document.getElementById('summaryInput').value;
+    navigator.clipboard.writeText(text).then(() => showToast('📋 Summary copied!'));
+  }
+
+  function generateAudio() {
+    const summary = document.getElementById('summaryInput').value;
+    const btn = document.querySelector('#summaryForm button');
+    btn.disabled = true;
+    btn.textContent = "Generating...";
+
+    fetch('/voice', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ summary })
+    })
+    .then(response => response.json())
+    .then(data => {
+      const audioURL = data.audio_url + '?t=' + new Date().getTime();
+      const audioPlayer = document.getElementById('audioPlayer');
+      const downloadLink = document.getElementById('downloadLink');
+
+      audioPlayer.src = audioURL;
+      audioPlayer.load();
+      downloadLink.href = audioURL;
+
+      document.getElementById('audioSection').classList.remove('hidden');
+      showToast('✅ Audio ready!');
+    })
+    .catch(err => {
+      console.error(err);
+      alert("❌ Failed to generate audio.");
+    })
+    .finally(() => {
+      btn.disabled = false;
+      btn.textContent = "🔊 Generate Audio";
+    });
+  }
+
+  function resetPage(force) {
+  if (force) {
+    window.location.href = window.location.pathname; // hard reload without query params or form data
+  } else {
+    location.reload();
+  }
+}
+</script>
 </body>
 </html>

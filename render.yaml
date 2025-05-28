@@ -2,6 +2,5 @@ services:
   - type: web
     name: smartnotes
     env: python
-    buildCommand: "pip install -r requirements.txt && python -m spacy download en_core_web_sm"
-    startCommand: "python app.py"
-    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn app:app"
