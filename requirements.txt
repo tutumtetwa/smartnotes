@@ -37,7 +37,7 @@ SQLAlchemy==2.0.41
 sympy==1.14.0
 textblob==0.19.0
 threadpoolctl==3.6.0
-tokenizers==0.18.1
+tokenizers==0.21.1
 torch==2.2.2
 torchvision==0.17.2
 tqdm==4.67.1
