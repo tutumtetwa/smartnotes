@@ -1,0 +1,11 @@
+image: python:3.11
+
+setup:
+  - pip install --upgrade pip
+  - pip install -r requirements.txt
+
+prepare:
+  - echo "Starting Flask with Gunicorn..."
+  - gunicorn app:app --bind 0.0.0.0:8080
+
+expose_port: 8080

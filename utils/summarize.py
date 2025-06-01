@@ -1,8 +1,12 @@
 from transformers import pipeline
 
-summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
+summarizer = None
 
 def generate_summary(text, length="medium"):
+    global summarizer
+    if summarizer is None:
+        summarizer = pipeline("summarization", model="sshleifer/distilbart-cnn-12-6")
+    
     text = text.strip()
     if len(text.split()) < 10:
         return text
