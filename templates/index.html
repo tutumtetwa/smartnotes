@@ -242,12 +242,23 @@
     return;
   }
 
-  navigator.clipboard.writeText(text)
-    .then(() => showToast('📋 Summary copied!'))
-    .catch(err => {
-      console.error('Clipboard error:', err);
-      alert('❌ Copy failed: ' + err.message);
-    });
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(() => showToast('📋 Summary copied!'))
+      .catch(err => {
+        console.error('Clipboard error:', err);
+        alert('❌ Copy failed: ' + err.message);
+      });
+  } else {
+    // Fallback: Create a temporary input element to copy
+    const tempInput = document.createElement('textarea');
+    tempInput.value = text;
+    document.body.appendChild(tempInput);
+    tempInput.select();
+    document.execCommand('copy');
+    document.body.removeChild(tempInput);
+    showToast('📋 Summary copied! (Fallback method)');
+  }
 }
 
 
