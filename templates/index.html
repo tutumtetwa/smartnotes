@@ -85,10 +85,10 @@
     <form id="summaryForm" class="flex flex-wrap gap-4 items-center">
       <textarea name="summary" id="summaryInput" hidden>{{ summary }}</textarea>
       <button type="button" onclick="generateAudio()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 w-full sm:w-auto">🔊 Generate Audio</button>
-      <div id="copyContainer" class="hidden">
+      
         
 
-    </form>
+   
 
     <div id="audioSection" class="hidden p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
       <h3 class="font-semibold mb-1">🎧 Audio Summary</h3>
@@ -102,13 +102,13 @@
     <p id="summaryOutput">{{ summary }}</p>
 
      <div class="mt-2">
-  <button
-    onclick="copySummary()"
-    class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 w-full sm:w-auto"
-  >
-    📋 Copy Summary
-  </button>
-</div>
+      <button
+        onclick="copySummary()"
+        class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 w-full sm:w-auto"
+      >
+        📋 Copy Summary
+      </button>
+    </div>
     
   </section>
 
@@ -235,7 +235,7 @@
     });
   }
 
-  function copySummary() {
+ function copySummary() {
   const summaryEl = document.getElementById('summaryOutput');
   if (!summaryEl) {
     showToast('⚠️ Summary element not found.');
@@ -256,6 +256,7 @@
       alert('❌ Copy failed: ' + err.message);
     });
 }
+
 
 
   document.addEventListener("DOMContentLoaded", function () {
