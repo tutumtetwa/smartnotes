@@ -104,14 +104,7 @@
   </section>
   {% endif %}
 
-  <div class="mt-2">
-  <button
-    onclick="copySummary()"
-    class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 w-full sm:w-auto"
-  >
-    📋 Copy Summary
-  </button>
-</div>
+  
 
   {% if sentiment %}
   <section class="mt-4 p-4 bg-pink-50 dark:bg-pink-900/20 border-l-4 border-pink-500 rounded">
@@ -183,19 +176,7 @@
 }
 
 
-  function copySummary() {
-  const summaryEl = document.getElementById('summaryOutput');
-  if (!summaryEl) {
-    showToast('⚠️ Summary element not found.');
-    return;
-  }
-
-  const text = summaryEl.innerText.trim();
-
-  if (!text || text.toLowerCase() === 'paste or write something') {
-    showToast('⚠️ Nothing to copy!');
-    return;
-  }
+  
 
   navigator.clipboard.writeText(text)
     .then(() => showToast('📋 Summary copied!'))
