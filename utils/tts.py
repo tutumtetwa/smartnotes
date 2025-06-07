@@ -4,6 +4,12 @@ from pydub import AudioSegment
 import tempfile
 import uuid
 import textwrap
+import hashlib
+from flask import Blueprint, request, jsonify
+from utils.tts_utils import generate_mp3  
+
+
+voice_bp = Blueprint('voice', __name__)
 
 def clean_old_audio_files():
     audio_dir = os.path.join('static', 'audio')
@@ -16,15 +22,27 @@ def clean_old_audio_files():
 
 
 
-def generate_audio(text):
-    # Limit each chunk to ~200 characters
-    chunks = textwrap.wrap(text, 200, break_long_words=False)
-    output_dir = os.path.join("static", "audio")
-    os.makedirs(output_dir, exist_ok=True)
+@voice_bp.route('/voice', methods=['POST'])
+def voice():
+    summary = request.form.get('summary', '')
+    if not summary:
+        return jsonify({'error': 'No summary provided'}), 400
 
-    # Create a unique filename
-    filename = f"summary_{uuid.uuid4().hex}.mp3"
-    final_path = os.path.join(output_dir, filename)
+    # Generate hash for filename
+    hash = hashlib.md5(summary.encode()).hexdigest()
+    output_path = os.path.join('static', 'audio', f"summary_{hash}.mp3")
+
+    # Only generate if it doesn't exist already
+    if not os.path.exists(output_path):
+        generate_mp3(summary, output_path)  # This should generate and save the mp3
+
+    return jsonify({'audio_url': f'/static/audio/summary_{hash}.mp3'})
+
+
+
+def generate_mp3(text, output_path):
+    chunks = textwrap.wrap(text, 200, break_long_words=False)
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
     combined = AudioSegment.empty()
 
@@ -34,6 +52,5 @@ def generate_audio(text):
             segment = AudioSegment.from_file(tf.name)
             combined += segment
 
-    combined.export(final_path, format="mp3")
-    return final_path, filename
+    combined.export(output_path, format="mp3")
 
