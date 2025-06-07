@@ -87,6 +87,7 @@
       <button type="button" onclick="generateAudio()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 w-full sm:w-auto">🔊 Generate Audio</button>
       <div id="copyContainer" class="hidden">
         
+        
 
 
     </form>
@@ -103,6 +104,15 @@
     <p id="summaryOutput">{{ summary }}</p>
   </section>
   {% endif %}
+
+  <div class="mt-2">
+  <button
+    onclick="copySummary()"
+    class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 w-full sm:w-auto"
+  >
+    📋 Copy Summary
+  </button>
+</div>
 
   
 
@@ -221,6 +231,29 @@
       btn.textContent = "🔊 Generate Audio";
     });
   }
+
+  function copySummary() {
+  const summaryEl = document.getElementById('summaryOutput');
+  if (!summaryEl) {
+    showToast('⚠️ Summary element not found.');
+    return;
+  }
+
+  const text = summaryEl.innerText.trim();
+
+  if (!text || text.toLowerCase() === 'paste or write something') {
+    showToast('⚠️ Nothing to copy!');
+    return;
+  }
+
+  navigator.clipboard.writeText(text)
+    .then(() => showToast('📋 Summary copied!'))
+    .catch(err => {
+      console.error('Clipboard error:', err);
+      alert('❌ Copy failed: ' + err.message);
+    });
+}
+
 
   document.addEventListener("DOMContentLoaded", function () {
     const copyContainer = document.getElementById("copyContainer");
