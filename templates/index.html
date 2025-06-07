@@ -172,8 +172,10 @@
 
 
   function copySummary() {
-  const text = document.getElementById('summaryInput').innerText;
-  navigator.clipboard.writeText(text).then(() => showToast('📋 Summary copied!'));
+  const text = document.getElementById('summaryOutput').innerText;
+  navigator.clipboard.writeText(text)
+    .then(() => showToast('📋 Summary copied!'))
+    .catch(err => alert('Copy failed: ' + err));
 }
 
   function generateAudio() {
