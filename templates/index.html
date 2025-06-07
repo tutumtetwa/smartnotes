@@ -191,14 +191,6 @@
 
   
 
-  navigator.clipboard.writeText(text)
-    .then(() => showToast('📋 Summary copied!'))
-    .catch(err => {
-      console.error('Clipboard error:', err);
-      alert('❌ Copy failed: ' + err.message);
-    });
-}
-
 
 
   function generateAudio() {
