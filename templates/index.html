@@ -172,7 +172,7 @@
 
 
   function copySummary() {
-  const text = document.getElementById('summaryOutput').innerText
+  const text = document.getElementById('summaryOutput')?.innerText.trim();
 
   if (!text || text === 'Paste or write something') {
     showToast('⚠️ Nothing to copy!');
@@ -183,6 +183,7 @@
     .then(() => showToast('📋 Summary copied!'))
     .catch(err => alert('Copy failed: ' + err));
 }
+
 
   function generateAudio() {
     const summary = document.getElementById('summaryInput').value;
