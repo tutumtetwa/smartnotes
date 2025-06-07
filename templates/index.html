@@ -172,7 +172,13 @@
 
 
   function copySummary() {
-  const text = document.getElementById('summaryOutput').innerText;
+  const text = document.getElementById('summaryOutput').innerText.trim();
+
+  if (!text || text === 'Paste or write something') {
+    showToast('⚠️ Nothing to copy!');
+    return;
+  }
+
   navigator.clipboard.writeText(text)
     .then(() => showToast('📋 Summary copied!'))
     .catch(err => alert('Copy failed: ' + err));
