@@ -97,7 +97,7 @@
 
   <section class="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 rounded">
     <h2 class="text-xl font-semibold mb-1">📝 Summary</h2>
-    <p>{{ summary }}</p>
+    <p id="summaryOutput">{{ summary }}</p>
   </section>
   {% endif %}
 
@@ -172,7 +172,7 @@
 
 
   function copySummary() {
-  const text = document.getElementById('summaryOutput').innerText.trim();
+  const text = document.getElementById('summaryOutput').innerText
 
   if (!text || text === 'Paste or write something') {
     showToast('⚠️ Nothing to copy!');
