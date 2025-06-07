@@ -85,13 +85,15 @@
     <form id="summaryForm" class="flex flex-wrap gap-4 items-center">
       <textarea name="summary" id="summaryInput" hidden>{{ summary }}</textarea>
       <button type="button" onclick="generateAudio()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 w-full sm:w-auto">🔊 Generate Audio</button>
-      <button
-        type="button"
-        onclick="copySummary()"
-        class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 w-full sm:w-auto"
-      >
-        📋 Copy Summary
-      </button>
+      <div id="copyContainer" class="hidden">
+        <button
+          onclick="copySummary()"
+          class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 w-full sm:w-auto"
+        >
+          📋 Copy Summary
+        </button>
+</div>
+
     </form>
 
     <div id="audioSection" class="hidden p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
@@ -178,17 +180,27 @@
 
 
   function copySummary() {
-  const text = document.getElementById('summaryOutput')?.innerText.trim();
+  const summaryEl = document.getElementById('summaryOutput');
+  if (!summaryEl) {
+    showToast('⚠️ Summary element not found.');
+    return;
+  }
 
-  if (!text || text === 'Paste or write something') {
+  const text = summaryEl.innerText.trim();
+
+  if (!text || text.toLowerCase() === 'paste or write something') {
     showToast('⚠️ Nothing to copy!');
     return;
   }
 
   navigator.clipboard.writeText(text)
     .then(() => showToast('📋 Summary copied!'))
-    .catch(err => alert('Copy failed: ' + err));
+    .catch(err => {
+      console.error('Clipboard error:', err);
+      alert('❌ Copy failed: ' + err.message);
+    });
 }
+
 
 
   function generateAudio() {
