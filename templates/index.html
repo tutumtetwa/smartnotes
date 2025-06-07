@@ -237,6 +237,13 @@
     });
   }
 
+  document.addEventListener("DOMContentLoaded", function () {
+    const copyContainer = document.getElementById("copyContainer");
+    if (copyContainer) {
+      copyContainer.classList.remove("hidden");
+    }
+  });
+
   function resetPage(force) {
   if (force) {
     window.location.href = window.location.pathname; // hard reload without query params or form data
